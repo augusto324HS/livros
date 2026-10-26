@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unidade Polo — Biblioteca Escolar</title>
+<style>
+:root{
+  --azul-escuro:#0a1e3f; --azul:#123a6b; --azul-claro:#1e5aa8;
+  --preto:#050a14; --branco:#ffffff; --cinza-1:#f4f7fb; --cinza-2:#e2eaf3;
+  --texto:#0b1a2b; --muted:#5c7091; --vermelho:#c62828; --verde:#1b7f4c;
+  --amarelo:#b8860b; --sombra:0 10px 30px rgba(5,15,35,.10);
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+[hidden]{display:none!important}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;background:var(--cinza-1);color:var(--texto);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer} input,select,textarea{font-family:inherit}
+
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 25% 15%, #17457f 0%, #0a1e3f 45%, #050a14 100%)}
+.login-card{width:min(440px,100%);background:var(--branco);border-radius:20px;padding:38px 34px;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.brand{font-size:30px;font-weight:800;letter-spacing:-.5px;color:var(--azul-escuro);line-height:1.1}
+.brand span{color:var(--azul-claro)}
+.sub{margin:6px 0 26px;color:var(--muted);font-size:14px}
+.mode-switch{display:flex;background:var(--cinza-2);border-radius:12px;padding:4px;margin-bottom:22px}
+.mode-switch button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:600;font-size:14px;color:var(--muted);transition:.18s}
+.mode-switch button.active{background:var(--azul-escuro);color:#fff;box-shadow:0 6px 14px rgba(10,30,63,.28)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--azul-escuro);margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--cinza-2);border-radius:11px;font-size:14px;background:var(--cinza-1);outline:none;transition:.16s}
+.field input:focus,.field select:focus{border-color:var(--azul-claro);background:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 20px;border:0;border-radius:11px;background:var(--azul-escuro);color:#fff;font-weight:700;font-size:14px;transition:.16s}
+.btn:hover{background:var(--azul-claro);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.full{width:100%;padding:13px}
+.btn.ghost{background:transparent;color:var(--azul-escuro);border:1.5px solid var(--cinza-2)}
+.btn.ghost:hover{background:var(--cinza-2);color:var(--azul-escuro)}
+.btn.danger{background:var(--vermelho)} .btn.danger:hover{background:#e53935}
+.btn.sm{padding:7px 12px;font-size:12.5px;border-radius:9px}
+.hint{margin-top:16px;font-size:12px;color:var(--muted);text-align:center;line-height:1.5}
+.err{color:var(--vermelho);font-size:13px;margin-top:10px;font-weight:600;text-align:center;min-height:18px}
+
+.app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+.sidebar{background:linear-gradient(180deg,#0a1e3f 0%,#071631 55%,#050a14 100%);color:#fff;display:flex;flex-direction:column;padding:24px 16px;gap:8px;position:sticky;top:0;height:100vh}
+.logo{font-size:19px;font-weight:800;letter-spacing:-.3px;padding:4px 10px 2px}
+.logo small{display:block;font-size:11px;font-weight:500;color:#8fb3e0;letter-spacing:.6px;margin-top:3px}
+.nav{display:flex;flex-direction:column;gap:4px;margin-top:18px;flex:1;overflow-y:auto}
+.nav-btn{display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;color:#c3d6ee;padding:11px 13px;border-radius:11px;font-size:14px;font-weight:600;text-align:left;transition:.16s}
+.nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-btn.active{background:var(--azul-claro);color:#fff;box-shadow:0 8px 20px rgba(30,90,168,.45)}
+.nav-btn .ico{font-size:16px;width:20px;text-align:center}
+.side-foot{border-top:1px solid rgba(255,255,255,.12);padding-top:14px;font-size:12px;color:#8fb3e0}
+.side-foot strong{display:block;color:#fff;font-size:13px;margin-bottom:8px;word-break:break-word}
+main{padding:26px 30px 60px;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:23px;color:var(--azul-escuro);letter-spacing:-.4px}
+.topbar .who{font-size:13px;color:var(--muted);background:var(--branco);padding:8px 14px;border-radius:10px;box-shadow:var(--sombra)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:16px;margin-bottom:22px}
+.stat{background:var(--branco);border-radius:16px;padding:18px 20px;box-shadow:var(--sombra);border-left:5px solid var(--azul-claro)}
+.stat .lbl{font-size:12.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.stat .val{font-size:30px;font-weight:800;color:var(--azul-escuro);margin-top:6px;line-height:1}
+.stat.late{border-left-color:var(--vermelho)} .stat.late .val{color:var(--vermelho)}
+.stat.ok{border-left-color:var(--verde)} .stat.ok .val{color:var(--verde)}
+
+.panel{background:var(--branco);border-radius:16px;padding:20px 22px;box-shadow:var(--sombra);margin-bottom:20px}
+.panel h2{margin:0 0 14px;font-size:16px;color:var(--azul-escuro);letter-spacing:-.2px}
+.panel h2 .tag{font-size:11px;background:var(--cinza-2);color:var(--muted);padding:3px 9px;border-radius:20px;margin-left:8px;vertical-align:middle;font-weight:700}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.input{padding:11px 14px;border:1.5px solid var(--cinza-2);border-radius:11px;background:var(--branco);font-size:14px;outline:none;transition:.16s;color:var(--texto)}
+.input:focus{border-color:var(--azul-claro);box-shadow:0 0 0 3px rgba(30,90,168,.12)}
+.grow{flex:1;min-width:200px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.chip{border:1.5px solid var(--cinza-2);background:var(--branco);color:var(--azul-escuro);padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;transition:.16s}
+.chip:hover{border-color:var(--azul-claro)}
+.chip.active{background:var(--azul-escuro);color:#fff;border-color:var(--azul-escuro)}
+.chip .n{opacity:.65;margin-left:5px;font-weight:700}
+
+.table-wrap{overflow-x:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+thead th{background:var(--azul-escuro);color:#fff;text-align:left;padding:11px 13px;font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;white-space:nowrap}
+thead th:first-child{border-radius:10px 0 0 0} thead th:last-child{border-radius:0 10px 0 0}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--cinza-2);vertical-align:middle}
+tbody tr:hover{background:#f7fafd}
+tbody tr.late-row{background:#fdf1f1} tbody tr.late-row:hover{background:#fbe6e6}
+tbody tr:last-child td{border-bottom:0}
+.empty{text-align:center;color:var(--muted);padding:26px 10px;font-size:13.5px}
+.t-title{font-weight:700;color:var(--azul-escuro)}
+.t-sub{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.b-ok{background:#e4f5ec;color:var(--verde)} .b-late{background:#fde7e7;color:var(--vermelho)}
+.b-info{background:#e7f0fb;color:var(--azul-claro)} .b-neutral{background:var(--cinza-2);color:var(--muted)}
+.stars{color:#f0a500;letter-spacing:1px;font-size:14px} .stars .dim{color:#d8e0ea}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .full{grid-column:1/-1}
+.form-grid label{display:block;font-size:12.5px;font-weight:700;color:var(--azul-escuro);margin-bottom:6px}
+.form-grid input,.form-grid select,.form-grid textarea{width:100%;padding:11px 13px;border:1.5px solid var(--cinza-2);border-radius:11px;font-size:14px;background:var(--cinza-1);outline:none;transition:.16s}
+.form-grid input:focus,.form-grid select:focus,.form-grid textarea:focus{border-color:var(--azul-claro);background:#fff}
+.form-grid textarea{resize:vertical;min-height:80px}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(5,10,20,.62);backdrop-filter:blur(3px);display:grid;place-items:center;padding:20px;z-index:100}
+.modal{background:#fff;border-radius:18px;padding:26px 26px 22px;width:min(700px,100%);max-height:88vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.4);animation:pop .16s ease-out}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{margin:0 0 18px;font-size:18px;color:var(--azul-escuro)}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;grid-column:1/-1}
+
+.stars-input{display:flex;gap:4px;margin-bottom:8px}
+.stars-input .star{background:none;border:0;font-size:26px;line-height:1;color:#d8e0ea;padding:0 2px;transition:.12s}
+.stars-input .star.on{color:#f0a500;transform:scale(1.06)} .stars-input .star:hover{transform:scale(1.15)}
+
+.rank-item{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--cinza-2)}
+.rank-item:last-child{border-bottom:0}
+.rank-pos{width:34px;height:34px;border-radius:10px;background:var(--azul-escuro);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex:none}
+.rank-item:nth-child(1) .rank-pos{background:#d4a017}
+.rank-item:nth-child(2) .rank-pos{background:#8fa3b8}
+.rank-item:nth-child(3) .rank-pos{background:#b06f2e}
+.rank-info{flex:1;min-width:0}
+.rank-info .n{font-weight:700;color:var(--azul-escuro);font-size:14.5px}
+.rank-info .m{font-size:12.5px;color:var(--muted);margin-top:2px}
+.rank-score{text-align:right;flex:none}
+.rank-score .s{font-size:19px;font-weight:800;color:var(--azul-claro);line-height:1}
+.rank-score .l{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+
+.review-card{border:1.5px solid var(--cinza-2);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.review-card .head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.review-card .head .n{font-weight:700;color:var(--azul-escuro)}
+.review-card .head .m{font-size:12px;color:var(--muted)}
+.review-card textarea{width:100%;padding:10px 13px;border:1.5px solid var(--cinza-2);border-radius:11px;font-size:13.5px;background:var(--cinza-1);outline:none;min-height:64px;resize:vertical}
+.review-card textarea:focus{border-color:var(--azul-claro);background:#fff}
+.review-card .foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{font-size:13px;color:var(--muted)}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--azul-escuro);color:#fff;padding:13px 20px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:0 14px 40px rgba(0,0,0,.32);opacity:0;transform:translateY(16px);pointer-events:none;transition:.24s;z-index:200;max-width:360px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.err{background:var(--vermelho)} .toast.ok{background:var(--verde)}
+
+@media (max-width:880px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:sticky;top:0;height:auto;flex-direction:column;padding:14px 14px 10px}
+  .nav{flex-direction:row;overflow-x:auto;margin-top:10px;gap:6px;padding-bottom:4px}
+  .nav-btn{white-space:nowrap;padding:9px 13px;font-size:13px}
+  .side-foot{display:none}
+  main{padding:18px 16px 50px}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="brand">Unidade <span>Polo</span></div>
+    <div class="sub">Sistema de Gestão da Biblioteca Escolar</div>
+
+    <div class="mode-switch">
+      <button type="button" class="active" data-mode="student">Aluno</button>
+      <button type="button" data-mode="admin">Bibliotecário</button>
+    </div>
+
+    <form id="loginForm">
+      <div id="studentFields">
+        <div class="field">
+          <label>Seu nome completo</label>
+          <input id="inpNome" autocomplete="off" placeholder="Ex.: Ana Beatriz Souza">
+        </div>
+        <div class="field">
+          <label>Turma</label>
+          <input id="inpTurma" list="loginTurmaList" autocomplete="off" placeholder="Ex.: 9º A">
+          <datalist id="loginTurmaList"></datalist>
+        </div>
+        <div class="hint" style="text-align:left;margin:-4px 0 14px">
+          Digite seu nome e turma para entrar. Não é necessário cadastro prévio.
+        </div>
+      </div>
+
+      <div id="adminFields" hidden>
+        <div class="field">
+          <label>Usuário</label>
+          <input id="inpUser" autocomplete="username" placeholder="bibliotecario">
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input id="inpPass" type="password" autocomplete="current-password" placeholder="••••••••">
+        </div>
+      </div>
+
+      <button class="btn full" type="submit">Entrar</button>
+      <div class="err" id="loginErr"></div>
+      <div class="hint">
+        Para testar como aluno, basta digitar seu nome e turma.<br>
+        Acesso do bibliotecário: <b>bibliotecario</b> / <b>polo123</b>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="sidebar">
+    <div class="logo">Unidade Polo<small>BIBLIOTECA ESCOLAR</small></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <strong id="sideUser">—</strong>
+      <button class="btn ghost sm" id="btnLogout" style="width:100%;border-color:rgba(255,255,255,.22);color:#c3d6ee">Sair</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <h1 id="pageTitle">Painel</h1>
+      <div class="who" id="userInfo">—</div>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modal" hidden><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function isoLocal(d){ const t = new Date(d.getTime() - d.getTimezoneOffset()*60000); return t.toISOString().slice(0,10); }
+function todayISO(){ return isoLocal(new Date()); }
+function parseDate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function daysBetween(a,b){ return Math.round((parseDate(b) - parseDate(a)) / 86400000); }
+function fmtDate(s){ if(!s) return '—'; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; }
+function starsHTML(n){ const f = Math.round(n); return `<span class="stars">${'★'.repeat(f)}<span class="dim">${'☆'.repeat(5-f)}</span></span>`; }
+
+function norm(s){
+  return String(s || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/\s+/g,' ');
+}
+function studentKey(nome, turma){ return norm(nome) + '|' + norm(turma); }
+
+let toastTimer;
+function toast(msg, type='ok'){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
+}
+
+const LOAN_DAYS = 10;
+const CACHE_KEY = 'unidadePolo.cache.v2';
+const CATEGORIAS = ['Romance','Aventura','Ficção Científica','Fantasia','Suspense','Terror','Biografia','História','Poesia','Didático','Infantil','Drama','HQ / Mangá','Conto','Crônica'];
+
+let DB = null;
+let session = null;
+let currentTab = 'livros';
+let stateVersion = 1;
+let saving = false;
+let pendingSave = false;
+const ui = { bookSearch:'', bookCat:'', recCat:'' };
+
+function seedBooks(){
+  const raw = [
+    'Carta a Dom Manuel|Pero Vaz de Caminha|História',
+    'Autos e Poesias|José de Anchieta|Poesia',
+    'Cartas|Padre Manuel da Nóbrega|História',
+    'Tratado descritivo do Brasil|Gabriel Soares de Sousa|História',
+    'Prosopopéia|Bento Teixeira|Poesia',
+    'História do Brasil|Frei Vicente do Salvador|História',
+    'Sermões|Padre Antônio Vieira|Didático',
+    'Poesias|Gregório de Matos|Poesia',
+    'Música do Parnaso|Manuel Botelho de Oliveira|Poesia',
+    'Cultura e opulência do Brasil|Antonil|História',
+    'Compêndio narrativo do Peregrino da América|Nuno Marques Pereira|História',
+    'Obras poéticas|Cláudio Manuel da Costa|Poesia',
+    'O Uraguai|Basílio da Gama|Poesia',
+    'O Caramuru|Fr. José de Santa Rita Durão|Poesia',
+    'Cartas chilenas|Tomás Antônio Gonzaga|Poesia',
+    'Marília de Dirceu|Tomás Antônio Gonzaga|Poesia',
+    'Viola de Lereno|Domingos Caldas Barbosa|Poesia',
+    'Glaura|Silva Alvarenga|Poesia',
+    'Suspiros poéticos e saudades|Gonçalves de Magalhães|Poesia',
+    'O juiz de paz na roça|Martins Pena|Drama',
+    'A Moreninha|Joaquim Manuel de Macedo|Romance',
+    'Memórias de um sargento de milícias|Manuel Antônio de Almeida|Romance',
+    'O Guarani|José de Alencar|Romance',
+    'O demônio familiar|José de Alencar|Drama',
+    'Primeiras trovas burlescas|Luís Gama|Poesia',
+    'Primaveras|Casimiro de Abreu|Poesia',
+    'Cartas do Solitário|Tavares Bastos|Didático',
+    'Cântico do Calvário|Fagundes Varela|Poesia',
+    'Iracema|José de Alencar|Romance',
+    'Comédias|Qorpo-Santo|Drama',
+    'O Guesa|Sousândrade|Poesia',
+    'Vozes d’África, O navio negreiro|Castro Alves|Poesia',
+    'Espumas flutuantes|Castro Alves|Poesia',
+    'Inocência|Visconde de Taunay|Romance',
+    'A mão e a luva|Machado de Assis|Romance',
+    'Senhora|José de Alencar|Romance',
+    'A escrava Isaura|Bernardo Guimarães|Romance',
+    'Iaiá Garcia|Machado de Assis|Romance',
+    'Memórias póstumas de Brás Cubas|Machado de Assis|Romance',
+    'Papéis avulsos|Machado de Assis|Conto',
+    'O Abolicionismo|Joaquim Nabuco|História',
+    'Sinfonias|Raimundo Correia|Poesia',
+    'O Ateneu|Raul Pompéia|Romance',
+    'Poesias|Olavo Bilac|Poesia',
+    'História da Literatura Brasileira|Sílvio Romero|Didático',
+    'O cortiço|Aluísio Azevedo|Romance',
+    'Quincas Borba|Machado de Assis|Romance',
+    'Broquéis|Cruz e Sousa|Poesia',
+    'Cartas de Inglaterra|Rui Barbosa|Didático',
+    'A Capital Federal|Artur Azevedo|Drama',
+    'Minha formação|Joaquim Nabuco|Biografia',
+    'Dona Mística|Alphonsus de Guimaraens|Poesia',
+    'Dom Casmurro|Machado de Assis|Romance',
+    'Os Sertões|Euclides da Cunha|História',
+    'Canad|Graça Aranha|Romance',
+    'Últimos sonetos|Cruz e Sousa|Poesia',
+    'Capítulos de história colonial|Capistrano de Abreu|História',
+    'Poemas e canções|Vicente de Carvalho|Poesia',
+    'Eu|Augusto dos Anjos|Poesia',
+    'Triste fim de Policarpo Quaresma|Lima Barreto|Romance',
+    'História da literatura brasileira|José Veríssimo|Didático',
+    'Urupês|Monteiro Lobato|Conto',
+    'Os caboclos|Valdomiro Silveira|Conto',
+    'Paulicéia desvairada|Mário de Andrade|Poesia',
+    'Ritmo dissoluto|Manuel Bandeira|Poesia',
+    'Memórias sentimentais de João Miramar|Oswald de Andrade|Romance',
+    'Pau-Brasil|Oswald de Andrade|Poesia',
+    'Raça|Guilherme de Almeida|Poesia',
+    'A Bagaceira|José Américo de Almeida|Romance',
+    'Macunaíma|Mário de Andrade|Romance',
+    'Martim Cererê|Cassiano Ricardo|Poesia',
+    'Cobra Norato|Raul Bopp|Poesia',
+    'A estrela da manhã|Manuel Bandeira|Poesia',
+    'Libertinagem|Manuel Bandeira|Poesia',
+    'Alguma poesia|Carlos Drummond de Andrade|Poesia',
+    'Sentimento do mundo|Carlos Drummond de Andrade|Poesia',
+    'A rosa do povo|Carlos Drummond de Andrade|Poesia',
+    'Vidas Secas|Graciliano Ramos|Romance',
+    'São Bernardo|Graciliano Ramos|Romance',
+    'Angústia|Graciliano Ramos|Romance',
+    'Fogo Morto|José Lins do Rego|Romance',
+    'Menino de Engenho|José Lins do Rego|Romance',
+    'O Quinze|Rachel de Queiroz|Romance',
+    'A Hora da Estrela|Clarice Lispector|Romance',
+    'Perto do coração selvagem|Clarice Lispector|Romance',
+    'Laços de Família|Clarice Lispector|Conto',
+    'A Paixão segundo G.H.|Clarice Lispector|Romance',
+    'Grande Sertão: Veredas|João Guimarães Rosa|Romance',
+    'Sagarana|João Guimarães Rosa|Conto',
+    'Corpo de Baile|João Guimarães Rosa|Conto',
+    'Primeiras Estórias|João Guimarães Rosa|Conto',
+    'Gabriela, Cravo e Canela|Jorge Amado|Romance',
+    'Capitães da Areia|Jorge Amado|Romance',
+    'Dona Flor e Seus Dois Maridos|Jorge Amado|Romance',
+    'Tenda dos Milagres|Jorge Amado|Romance',
+    'Terras do Sem-Fim|Jorge Amado|Romance',
+    'Olhai os Lírios do Campo|Érico Veríssimo|Romance',
+    'O Tempo e o Vento|Érico Veríssimo|Romance',
+    'Incidente em Antares|Érico Veríssimo|Romance',
+    'O Continente|Érico Veríssimo|Romance',
+    'O Retrato|Érico Veríssimo|Romance',
+    'O Arquipélago|Érico Veríssimo|Romance',
+    'A Literatura no Brasil|Afrânio Coutinho|Didático',
+    'Formação da Literatura Brasileira|Antonio Candido|Didático',
+    'História Concisa da Literatura Brasileira|Alfredo Bosi|Didático',
+    'Crônica da Casa Assassinada|Lúcio Cardoso|Romance',
+    'Duzentas Crônicas Escolhidas|Rubem Braga|Crônica',
+    'Cravo, Lírio e Rosa|Lygia Fagundes Telles|Conto',
+    'Ciranda de Pedra|Lygia Fagundes Telles|Romance',
+    'As Meninas|Lygia Fagundes Telles|Romance',
+    'A Estrutura da Bolha de Sabão|Lygia Fagundes Telles|Conto',
+    'O Vampiro de Curitiba|Dalton Trevisan|Conto',
+    'Novelas Nada Exemplares|Dalton Trevisan|Conto',
+    'Cemitério de Elefantes|Dalton Trevisan|Conto',
+    'Morte na Praça|Dalton Trevisan|Conto',
+    'A Guerra Conjugal|Dalton Trevisan|Conto',
+    'O Rei da Vela|Oswald de Andrade|Drama',
+    'Vestido de Noiva|Nelson Rodrigues|Drama',
+    'A Falecida|Nelson Rodrigues|Drama',
+    'Toda Nudez Será Castigada|Nelson Rodrigues|Drama',
+    'O Beijo no Asfalto|Nelson Rodrigues|Drama',
+    'Auto da Compadecida|Ariano Suassuna|Drama',
+    'O Santo e a Porca|Ariano Suassuna|Drama',
+    'A Pena e a Lei|Ariano Suassuna|Drama',
+    'Eles Não Usam Black-Tie|Gianfrancesco Guarnieri|Drama',
+    'O Pagador de Promessas|Dias Gomes|Drama',
+    'O Bem-Amado|Dias Gomes|Drama',
+    'Roque Santeiro|Dias Gomes|Drama',
+    'Tieta do Agreste|Jorge Amado|Romance',
+    'A Morte e a Morte de Quincas Berro d’Água|Jorge Amado|Romance',
+    'Mar Morto|Jorge Amado|Romance',
+    'Jubiabá|Jorge Amado|Romance',
+    'Suor|Jorge Amado|Romance',
+    'O País do Carnaval|Jorge Amado|Romance',
+    'Cacau|Jorge Amado|Romance',
+    'A Estrada do Mar|Mário de Andrade|Poesia',
+    'Poesias Completas|Manuel Bandeira|Poesia',
+    'Estrela da Vida Inteira|Manuel Bandeira|Poesia',
+    'Poesia Completa|Carlos Drummond de Andrade|Poesia',
+    'A Educação pela Pedra|João Cabral de Melo Neto|Poesia',
+    'Morte e Vida Severina|João Cabral de Melo Neto|Poesia',
+    'O Cão sem Plumas|João Cabral de Melo Neto|Poesia',
+    'Poemas Escolhidos|Ferreira Gullar|Poesia',
+    'Toda Poesia|Ferreira Gullar|Poesia',
+    'Poesia Completa|Vinícius de Moraes|Poesia',
+    'Antologia Poética|Vinícius de Moraes|Poesia',
+    'Poemas, Sonetos e Baladas|Vinícius de Moraes|Poesia',
+    'O encontro marcado|Fernando Sabino|Romance',
+    'O grande mentecapto|Fernando Sabino|Romance',
+    'A mulher do próximo|Fernando Sabino|Crônica',
+    'Deixa o Alfredo falar!|Fernando Sabino|Crônica',
+    'O Homem Nu|Fernando Sabino|Conto',
+    'A Cidade e as Serras|Eça de Queirós|Romance',
+    'O Primo Basílio|Eça de Queirós|Romance',
+    'O Crime do Padre Amaro|Eça de Queirós|Romance',
+    'Os Maias|Eça de Queirós|Romance',
+    'A Ilustre Casa de Ramires|Eça de Queirós|Romance',
+    'A Correspondência de Fradique Mendes|Eça de Queirós|Romance',
+    'Mensagem|Fernando Pessoa|Poesia',
+    'Livro do Desassossego|Fernando Pessoa|Poesia',
+    'Poemas de Alberto Caeiro|Fernando Pessoa|Poesia',
+    'Odes de Ricardo Reis|Fernando Pessoa|Poesia',
+    'Poemas de Álvaro de Campos|Fernando Pessoa|Poesia',
+    'Os Lusíadas|Luís de Camões|Poesia',
+    'Amor de Perdição|Camilo Castelo Branco|Romance',
+    'A Brasileira de Prazins|Camilo Castelo Branco|Romance',
+    'O Bobo|Alexandre Herculano|Romance',
+    'Eurico, o Presbítero|Alexandre Herculano|Romance',
+    'Viagens na Minha Terra|Almeida Garrett|Romance',
+    'Frei Luís de Sousa|Almeida Garrett|Drama',
+    'Ilíada|Homero|Poesia',
+    'Odisséia|Homero|Poesia',
+    'A Divina Comédia|Dante Alighieri|Poesia',
+    'Dom Quixote|Miguel de Cervantes|Romance',
+    'Hamlet|William Shakespeare|Drama',
+    'Romeu e Julieta|William Shakespeare|Drama',
+    'Macbeth|William Shakespeare|Drama',
+    'Otelo|William Shakespeare|Drama',
+    'Rei Lear|William Shakespeare|Drama',
+    'A Megera Domada|William Shakespeare|Drama',
+    'Sonho de uma Noite de Verão|William Shakespeare|Drama',
+    'Orgulho e Preconceito|Jane Austen|Romance',
+    'Razão e Sensibilidade|Jane Austen|Romance',
+    'Emma|Jane Austen|Romance',
+    'Mansfield Park|Jane Austen|Romance',
+    'Persuasão|Jane Austen|Romance',
+    'A Abadia de Northanger|Jane Austen|Romance',
+    'Jane Eyre|Charlotte Brontë|Romance',
+    'O Morro dos Ventos Uivantes|Emily Brontë|Romance',
+    'Grandes Esperanças|Charles Dickens|Romance',
+    'Oliver Twist|Charles Dickens|Romance',
+    'David Copperfield|Charles Dickens|Romance',
+    'Um Conto de Duas Cidades|Charles Dickens|Romance',
+    'Os Miseráveis|Victor Hugo|Romance',
+    'O Corcunda de Notre-Dame|Victor Hugo|Romance',
+    'Os Três Mosqueteiros|Alexandre Dumas|Aventura',
+    'O Conde de Monte Cristo|Alexandre Dumas|Aventura',
+    'A Dama das Camélias|Alexandre Dumas (filho)|Romance',
+    'Madame Bovary|Gustave Flaubert|Romance',
+    'A Educação Sentimental|Gustave Flaubert|Romance',
+    'O Vermelho e o Negro|Stendhal|Romance',
+    'A Cartuxa de Parma|Stendhal|Romance',
+    'O Pai Goriot|Honoré de Balzac|Romance',
+    'Ilusões Perdidas|Honoré de Balzac|Romance',
+    'Eugénie Grandet|Honoré de Balzac|Romance',
+    'Crime e Castigo|Fiodor Dostoiévski|Romance',
+    'Os Irmãos Karamazov|Fiodor Dostoiévski|Romance',
+    'O Idiota|Fiodor Dostoiévski|Romance',
+    'Memórias do Subsolo|Fiodor Dostoiévski|Romance',
+    'Guerra e Paz|Liev Tolstói|Romance',
+    'Anna Karenina|Liev Tolstói|Romance',
+    'A Morte de Ivan Ilitch|Liev Tolstói|Romance',
+    'Pais e Filhos|Ivan Turgueniev|Romance',
+    'Oblomov|Ivan Goncharov|Romance',
+    'Almas Mortas|Nikolai Gogol|Romance',
+    'O Capote|Nikolai Gogol|Conto',
+    'O Mestre e Margarida|Mikhail Bulgákov|Fantasia',
+    'Dr. Jivago|Boris Pasternak|Romance',
+    'O Processo|Franz Kafka|Romance',
+    'A Metamorfose|Franz Kafka|Conto',
+    'O Castelo|Franz Kafka|Romance',
+    'Carta ao Pai|Franz Kafka|Biografia',
+    'A Montanha Mágica|Thomas Mann|Romance',
+    'Morte em Veneza|Thomas Mann|Romance',
+    'Os Buddenbrook|Thomas Mann|Romance',
+    'O Lobo da Estepe|Hermann Hesse|Romance',
+    'Siddhartha|Hermann Hesse|Romance',
+    'O Jogo das Contas de Vidro|Hermann Hesse|Romance',
+    'Demian|Hermann Hesse|Romance',
+    'Nada de Novo no Front|Erich Maria Remarque|Romance',
+    'O Amante|Marguerite Duras|Romance',
+    'A Insustentável Leveza do Ser|Milan Kundera|Romance',
+    'O Livro do Riso e do Esquecimento|Milan Kundera|Romance',
+    'A Brincadeira|Milan Kundera|Romance',
+    'Ulisses|James Joyce|Romance',
+    'Retrato do Artista quando Jovem|James Joyce|Romance',
+    'Finnegans Wake|James Joyce|Romance',
+    'Dublinenses|James Joyce|Conto',
+    'O Grande Gatsby|F. Scott Fitzgerald|Romance',
+    'O Sol Também se Levanta|Ernest Hemingway|Romance',
+    'Adeus às Armas|Ernest Hemingway|Romance',
+    'Por Quem os Sinos Dobram|Ernest Hemingway|Romance',
+    'O Velho e o Mar|Ernest Hemingway|Romance',
+    'O Apanhador no Campo de Centeio|J. D. Salinger|Romance',
+    'O Deus das Moscas|William Golding|Romance',
+    'Laranja Mecânica|Anthony Burgess|Ficção Científica',
+    '1984|George Orwell|Ficção Científica',
+    'A Revolução dos Bichos|George Orwell|Ficção Científica',
+    'Admirável Mundo Novo|Aldous Huxley|Ficção Científica',
+    'Fahrenheit 451|Ray Bradbury|Ficção Científica',
+    'O Conto da Aia|Margaret Atwood|Ficção Científica',
+    'O Hobbit|J. R. R. Tolkien|Fantasia',
+    'O Senhor dos Anéis|J. R. R. Tolkien|Fantasia',
+    'O Silmarillion|J. R. R. Tolkien|Fantasia',
+    'As Crônicas de Nárnia|C. S. Lewis|Fantasia',
+    'Harry Potter e a Pedra Filosofal|J. K. Rowling|Fantasia',
+    'Harry Potter e a Câmara Secreta|J. K. Rowling|Fantasia',
+    'Harry Potter e o Prisioneiro de Azkaban|J. K. Rowling|Fantasia',
+    'O Pequeno Príncipe|Antoine de Saint-Exupéry|Infantil',
+    'Alice no País das Maravilhas|Lewis Carroll|Infantil',
+    'Alice Através do Espelho|Lewis Carroll|Infantil',
+    'Peter Pan|J. M. Barrie|Infantil',
+    'Pinóquio|Carlo Collodi|Infantil',
+    'O Mágico de Oz|L. Frank Baum|Infantil',
+    'As Aventuras de Tom Sawyer|Mark Twain|Aventura',
+    'As Aventuras de Huckleberry Finn|Mark Twain|Aventura',
+    'A Ilha do Tesouro|Robert Louis Stevenson|Aventura',
+    'O Médico e o Monstro|Robert Louis Stevenson|Suspense',
+    'O Retrato de Dorian Gray|Oscar Wilde|Romance',
+    'O Fantasma de Canterville|Oscar Wilde|Conto',
+    'Frankenstein|Mary Shelley|Terror',
+    'Drácula|Bram Stoker|Terror',
+    'A Volta ao Mundo em 80 Dias|Júlio Verne|Aventura',
+    'Vinte Mil Léguas Submarinas|Júlio Verne|Aventura',
+    'Viagem ao Centro da Terra|Júlio Verne|Aventura',
+    'Da Terra à Lua|Júlio Verne|Aventura',
+    'A Guerra dos Mundos|H. G. Wells|Ficção Científica',
+    'A Máquina do Tempo|H. G. Wells|Ficção Científica',
+    'O Homem Invisível|H. G. Wells|Ficção Científica',
+    'Neuromancer|William Gibson|Ficção Científica',
+    'Fundação|Isaac Asimov|Ficção Científica',
+    'Eu, Robô|Isaac Asimov|Ficção Científica',
+    'Duna|Frank Herbert|Ficção Científica',
+    'O Guia do Mochileiro das Galáxias|Douglas Adams|Ficção Científica',
+    'Androides Sonham com Ovelhas Elétricas?|Philip K. Dick|Ficção Científica',
+    'O Nome da Rosa|Umberto Eco|Suspense',
+    'O Pêndulo de Foucault|Umberto Eco|Suspense',
+    'O Código Da Vinci|Dan Brown|Suspense',
+    'Anjos e Demônios|Dan Brown|Suspense',
+    'O Silêncio dos Inocentes|Thomas Harris|Suspense',
+    'Dragão Vermelho|Thomas Harris|Suspense',
+    'O Iluminado|Stephen King|Terror',
+    'It: A Coisa|Stephen King|Terror',
+    'Carrie, a Estranha|Stephen King|Terror',
+    'Misery|Stephen King|Terror',
+    'O Exorcista|William Peter Blatty|Terror',
+    'A Assombração da Casa da Colina|Shirley Jackson|Terror',
+    'O Bebê de Rosemary|Ira Levin|Terror',
+    'Psicose|Robert Bloch|Terror',
+    'O Alienista|Machado de Assis|Conto',
+    'A Cartomante|Machado de Assis|Conto',
+    'A Causa Secreta|Machado de Assis|Conto',
+    'O Espelho|Machado de Assis|Conto',
+    'Singular Ocorrência|Machado de Assis|Conto',
+    'Noite na Taverna|Álvares de Azevedo|Conto',
+    'Lira dos Vinte Anos|Álvares de Azevedo|Poesia',
+    'Macário|Álvares de Azevedo|Drama',
+    'Vozes da América|Fagundes Varela|Poesia',
+    'O Ermitão de Muquém|Bernardo Guimarães|Romance',
+    'O Seminarista|Bernardo Guimarães|Romance',
+    'A Pata da Gazela|José de Alencar|Romance',
+    'Lucíola|José de Alencar|Romance',
+    'Diva|José de Alencar|Romance',
+    'Ubirajara|José de Alencar|Romance',
+    'As Minas de Prata|José de Alencar|Romance',
+    'Guerra dos Mascates|José de Alencar|Romance',
+    'Alfarrábios|José de Alencar|Conto',
+    'Ao Correr da Pena|José de Alencar|Crônica',
+    'A Viuvinha|José de Alencar|Romance',
+    'Cinco Minutos|José de Alencar|Romance',
+    'Encarnação|José de Alencar|Romance',
+    'O Tronco do Ipê|José de Alencar|Romance',
+    'Til|José de Alencar|Romance'
+  ];
+  const seen = new Set();
+  const out = [];
+  raw.forEach(line => {
+    const [t, a, c] = line.split('|');
+    const titulo = (t || '').trim(), autor = (a || '').trim(), categoria = (c || 'Romance').trim();
+    if(!titulo || !autor) return;
+    const k = norm(titulo) + '|' + norm(autor);
+    if(seen.has(k)) return;
+    seen.add(k);
+    out.push({ titulo, autor, categoria, ano: '—', exemplares: 3 });
+  });
+  return out.map((b, i) => ({ id: i + 1, ...b }));
+}
+
+/* =========================================================
+   PERSISTÊNCIA — agora via API (Supabase)
+   ========================================================= */
+
+async function loadDB(){
+  // 1) Tenta o servidor
+  try {
+    const resp = await fetch('/api/state', { cache: 'no-store' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    DB = json.data || { books: [], loans: [], reviews: [] };
+    stateVersion = json.version || 1;
+
+    if (!DB.meta) DB.meta = { nextBook: 1, nextLoan: 1, nextReview: 1, user:'bibliotecario', pass:'polo123' };
+
+    // Se o banco está vazio, popula com o catálogo inicial
+    if (!DB.books || DB.books.length === 0) {
+      DB.books = seedBooks();
+      DB.meta.nextBook = DB.books.length + 1;
+      saveDB();
+    }
+
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(DB)); } catch(e) {}
+    return;
+  } catch (e) {
+    console.warn('Servidor indisponível, usando cache local.', e);
+  }
+
+  // 2) Fallback: cache local
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && Array.isArray(d.books)) {
+        DB = d;
+        stateVersion = 1;
+        toast('Servidor indisponível. Usando dados em cache.', 'err');
+        return;
+      }
+    }
+  } catch (e) {}
+
+  // 3) Fallback final: seed
+  DB = { meta:{ nextBook:1, nextLoan:1, nextReview:1, user:'bibliotecario', pass:'polo123' }, books: [], loans: [], reviews: [] };
+  DB.books = seedBooks();
+  DB.meta.nextBook = DB.books.length + 1;
+  stateVersion = 1;
+  toast('Servidor indisponível. Usando catálogo inicial.', 'err');
+}
+
+function saveDB(){
+  // Cache local primeiro (não perde nada se o servidor cair)
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(DB)); } catch(e) {}
+
+  if (saving) { pendingSave = true; return; }
+  saving = true;
+  pendingSave = false;
+
+  fetch('/api/state', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: DB, version: stateVersion })
+  })
+  .then(async resp => {
+    if (resp.status === 409) {
+      toast('Os dados foram atualizados por outra pessoa. Recarregando...', 'err');
+      await loadDB();
+      render();
+      return;
+    }
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const json = await resp.json();
+    stateVersion = json.version;
+  })
+  .catch(err => {
+    console.error('Falha ao salvar no servidor:', err);
+    toast('Servidor indisponível. Dados salvos apenas neste navegador.', 'err');
+  })
+  .finally(() => {
+    saving = false;
+    if (pendingSave) { pendingSave = false; saveDB(); }
+  });
+}
+
+const bookById = id => DB.books.find(b => b.id === id);
+const activeLoansOfBook = id => DB.loans.filter(l => l.bookId === id && !l.devolvida && l.status === 'aprovado');
+const reviewsOfBook = id => DB.reviews.filter(r => r.bookId === id);
+const availableCopies = b => b.exemplares - activeLoansOfBook(b.id).length;
+const avgRating = id => { const r = reviewsOfBook(id); return r.length ? r.reduce((a,x) => a + x.nota, 0) / r.length : 0; };
+const loanCount = id => DB.loans.filter(l => l.bookId === id).length;
+const isLate = l => !l.devolvida && l.status === 'aprovado' && l.prevista < todayISO();
+const lateDays = l => Math.max(0, daysBetween(l.prevista, todayISO()));
+const isPending = l => l.status === 'pendente';
+
+function scoreOf(b){
+  const media = avgRating(b.id);
+  const emp = loanCount(b.id);
+  const maxEmp = Math.max(1, ...DB.books.map(x => loanCount(x.id)));
+  const nRev = reviewsOfBook(b.id).length;
+  return (media/5)*65 + (emp/maxEmp)*25 + (nRev ? 10 : 0);
+}
+
+function openModal(html){ $('#modalBox').innerHTML = html; $('#modal').hidden = false; }
+function closeModal(){ $('#modal').hidden = true; $('#modalBox').innerHTML = ''; }
+
+$('#modal').addEventListener('click', e => {
+  if(e.target.id === 'modal'){ closeModal(); return; }
+  if(e.target.closest('[data-action="closeModal"]')) closeModal();
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && !$('#modal').hidden) closeModal(); });
+
+let loginMode = 'student';
+$$('.mode-switch button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    loginMode = btn.dataset.mode;
+    $$('.mode-switch button').forEach(b => b.classList.toggle('active', b === btn));
+    $('#studentFields').hidden = loginMode !== 'student';
+    $('#adminFields').hidden   = loginMode !== 'admin';
+    $('#loginErr').textContent = '';
+  });
+});
+
+function fillLoginTurmas(){
+  const turmas = [...new Set(DB.loans.map(l => l.turma))].sort((a,b) => a.localeCompare(b));
+  $('#loginTurmaList').innerHTML = turmas.map(t => `<option value="${esc(t)}">`).join('');
+}
+
+$('#loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const err = $('#loginErr');
+  err.textContent = '';
+
+  if(loginMode === 'admin'){
+    const u = $('#inpUser').value.trim();
+    const p = $('#inpPass').value;
+    if(u.toLowerCase() === String(DB.meta.user).toLowerCase() && p === DB.meta.pass){
+      session = { role:'admin' };
+      startApp();
+    } else {
+      err.textContent = 'Usuário ou senha incorretos.';
+    }
+    return;
+  }
+
+  const nome = $('#inpNome').value.trim().replace(/\s+/g,' ');
+  const turma = $('#inpTurma').value.trim().replace(/\s+/g,' ');
+  if(nome.length < 3 || turma.length < 1){ err.textContent = 'Informe seu nome completo e a turma.'; return; }
+  session = { role:'student', key: studentKey(nome, turma), nome, turma };
+  startApp();
+});
+
+$('#btnLogout').addEventListener('click', () => {
+  session = null;
+  currentTab = 'livros';
+  $('#app').hidden = true;
+  $('#loginScreen').hidden = false;
+  $('#inpPass').value = '';
+  $('#inpNome').value = '';
+  $('#inpTurma').value = '';
+  fillLoginTurmas();
+});
+
+function startApp(){
+  $('#loginScreen').hidden = true;
+  $('#app').hidden = false;
+  currentTab = session.role === 'admin' ? 'dashboard' : 'livros';
+  render();
+}
+
+const ADMIN_TABS = [
+  { id:'dashboard',     label:'Painel',         icon:'📊' },
+  { id:'livros',        label:'Livros',         icon:'📚' },
+  { id:'pedidos',       label:'Pedidos',        icon:'📥' },
+  { id:'avaliacoes',    label:'Avaliações',     icon:'⭐' },
+  { id:'recomendacoes', label:'Recomendações',  icon:'🏆' },
+  { id:'config',        label:'Configurações',  icon:'⚙️' }
+];
+const STUDENT_TABS = [
+  { id:'livros',        label:'Catálogo',       icon:'📚' },
+  { id:'meus',          label:'Meus Pedidos',   icon:'📖' },
+  { id:'avaliar',       label:'Avaliar',        icon:'⭐' },
+  { id:'recomendacoes', label:'Recomendações',  icon:'🏆' }
+];
+
+function render(){
+  const tabs = session.role === 'admin' ? ADMIN_TABS : STUDENT_TABS;
+  if(!tabs.some(t => t.id === currentTab)) currentTab = tabs[0].id;
+
+  $('#nav').innerHTML = tabs.map(t =>
+    `<button class="nav-btn ${currentTab === t.id ? 'active' : ''}" data-tab="${t.id}">
+       <span class="ico">${t.icon}</span>${t.label}
+       ${t.id === 'pedidos' ? pendingBadge() : ''}
+     </button>`).join('');
+
+  $('#pageTitle').textContent = tabs.find(t => t.id === currentTab).label;
+
+  if(session.role === 'admin'){
+    $('#userInfo').textContent = '👤 Bibliotecário(a)';
+    $('#sideUser').textContent = 'Bibliotecário(a)';
+  } else {
+    $('#userInfo').textContent = `🎓 ${session.nome} · ${session.turma}`;
+    $('#sideUser').textContent = `${session.nome} · ${session.turma}`;
+  }
+
+  $('#view').innerHTML = VIEWS[currentTab]();
+  bindView();
+}
+
+function pendingBadge(){
+  const n = DB.loans.filter(isPending).length;
+  return n ? ` <span class="badge b-late" style="margin-left:4px">${n}</span>` : '';
+}
+
+$('#nav').addEventListener('click', e => {
+  const btn = e.target.closest('[data-tab]');
+  if(!btn) return;
+  currentTab = btn.dataset.tab;
+  render();
+});
+
+const VIEWS = {};
+
+VIEWS.dashboard = function(){
+  const ativos = DB.loans.filter(l => !l.devolvida && l.status === 'aprovado');
+  const pendentes = DB.loans.filter(isPending);
+  const atrasados = ativos.filter(isLate);
+  const top = [...DB.books].map(b => ({ b, s: scoreOf(b) })).sort((a,b) => b.s - a.s).slice(0,5);
+
+  const atrasadosHTML = atrasados.length
+    ? `<div class="table-wrap"><table>
+        <thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Prevista</th><th>Atraso</th><th>Ação</th></tr></thead>
+        <tbody>${atrasados.sort((a,b) => a.prevista.localeCompare(b.prevista)).map(l => {
+          const b = bookById(l.bookId);
+          return `<tr class="late-row">
+            <td><div class="t-title">${esc(l.nome)}</div></td>
+            <td>${esc(l.turma)}</td>
+            <td>${esc(b ? b.titulo : '—')}</td>
+            <td>${fmtDate(l.prevista)}</td>
+            <td><span class="badge b-late">${lateDays(l)} dia(s)</span></td>
+            <td><button class="btn sm" data-action="devolver" data-id="${l.id}">Registrar devolução</button></td>
+          </tr>`;
+        }).join('')}</tbody></table></div>`
+    : `<div class="empty">✅ Nenhum livro atrasado no momento.</div>`;
+
+  return `
+    <div class="cards">
+      <div class="stat"><div class="lbl">Livros no acervo</div><div class="val">${DB.books.length}</div></div>
+      <div class="stat ok"><div class="lbl">Empréstimos ativos</div><div class="val">${ativos.length}</div></div>
+      <div class="stat late"><div class="lbl">Pedidos pendentes</div><div class="val">${pendentes.length}</div></div>
+      <div class="stat late"><div class="lbl">Atrasados</div><div class="val">${atrasados.length}</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>⚠️ Livros atrasados <span class="tag">${atrasados.length}</span></h2>
+      ${atrasadosHTML}
+    </div>
+
+    <div class="panel">
+      <h2>🏆 Melhores livros para ler agora</h2>
+      ${rankHTML(top, false)}
+    </div>
+
+    <div class="panel">
+      <h2>🕒 Últimos pedidos</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Data do pedido</th><th>Status</th></tr></thead>
+        <tbody>${[...DB.loans].sort((a,b) => b.retirada.localeCompare(a.retirada)).slice(0,8).map(l => {
+          const b = bookById(l.bookId);
+          const st = l.devolvida ? `<span class="badge b-ok">Devolvido</span>`
+                    : isPending(l) ? `<span class="badge b-late">Pendente</span>`
+                    : isLate(l) ? `<span class="badge b-late">Atrasado</span>`
+                    : `<span class="badge b-info">Em dia</span>`;
+          return `<tr>
+            <td>${esc(l.nome)}</td><td>${esc(l.turma)}</td>
+            <td>${esc(b ? b.titulo : '—')}</td>
+            <td>${fmtDate(l.retirada)}</td><td>${st}</td>
+          </tr>`;
+        }).join('') || `<tr><td colspan="5" class="empty">Nenhum pedido ainda.</td></tr>`}</tbody>
+      </table></div>
+    </div>`;
+};
+
+function rankHTML(list, isStudent){
+  if(!list.length) return `<div class="empty">Nenhum livro cadastrado.</div>`;
+  const k = isStudent ? session.key : null;
+  return list.map((item, i) => {
+    const b = item.b;
+    const media = avgRating(b.id);
+    const jaLeu = k ? DB.loans.some(l => l.bookId === b.id && studentKey(l.nome, l.turma) === k) : false;
+    return `<div class="rank-item">
+      <div class="rank-pos">${i+1}</div>
+      <div class="rank-info">
+        <div class="n">${esc(b.titulo)} ${jaLeu ? '<span class="badge b-neutral" style="margin-left:6px">você já leu</span>' : ''}</div>
+        <div class="m">${esc(b.autor)} · ${esc(b.categoria)} · ${starsHTML(media)} ${media ? media.toFixed(1) : 'sem nota'} · ${loanCount(b.id)} empréstimo(s)</div>
+      </div>
+      <div class="rank-score"><div class="s">${item.s.toFixed(0)}</div><div class="l">pontos</div></div>
+    </div>`;
+  }).join('');
+}
+
+VIEWS.livros = function(){
+  const cats = [...new Set(DB.books.map(b => b.categoria))].sort((a,b)=>a.localeCompare(b));
+  const counts = {};
+  DB.books.forEach(b => counts[b.categoria] = (counts[b.categoria] || 0) + 1);
+
+  return `
+    <div class="toolbar">
+      <input class="input grow" id="bookSearch" placeholder="🔎 Buscar por título, autor ou categoria..." value="${esc(ui.bookSearch)}">
+      ${session.role === 'admin' ? '<button class="btn" data-action="newBook">+ Novo livro</button>' : ''}
+    </div>
+
+    <div class="chips">
+      <button class="chip ${!ui.bookCat ? 'active' : ''}" data-action="catFilter" data-cat="">Todos <span class="n">${DB.books.length}</span></button>
+      ${cats.map(c => `<button class="chip ${ui.bookCat === c ? 'active' : ''}" data-action="catFilter" data-cat="${esc(c)}">${esc(c)} <span class="n">${counts[c] || 0}</span></button>`).join('')}
+    </div>
+
+    <div class="panel" id="bookTableWrap">${bookTableHTML()}</div>`;
+};
+
+function filteredBooks(){
+  const q = norm(ui.bookSearch);
+  return DB.books.filter(b => {
+    if(ui.bookCat && b.categoria !== ui.bookCat) return false;
+    if(!q) return true;
+    return norm(b.titulo + ' ' + b.autor + ' ' + b.categoria).includes(q);
+  }).sort((a,b) => a.titulo.localeCompare(b.titulo));
+}
+
+function bookTableHTML(){
+  const list = filteredBooks();
+  if(!list.length) return `<div class="empty">Nenhum livro encontrado.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Título</th><th>Autor</th><th>Categoria</th><th>Disp.</th><th>Nota</th><th>Ações</th></tr></thead>
+    <tbody>${list.map(b => {
+      const disp = availableCopies(b);
+      const media = avgRating(b.id);
+      const acaoAluno = `<button class="btn sm" data-action="pedir" data-id="${b.id}" ${disp<=0 ? 'disabled style="opacity:.4;cursor:not-allowed"' : ''}>📥 Pedir emprestado</button>`;
+      const acoesAdmin = `
+        <button class="btn sm ghost" data-action="bookDetails" data-id="${b.id}">Histórico</button>
+        <button class="btn sm ghost" data-action="editBook" data-id="${b.id}">Editar</button>
+        <button class="btn sm danger" data-action="delBook" data-id="${b.id}">Excluir</button>`;
+      return `<tr>
+        <td><div class="t-title">${esc(b.titulo)}</div></td>
+        <td>${esc(b.autor)}</td>
+        <td><span class="badge b-info">${esc(b.categoria)}</span></td>
+        <td>${disp > 0 ? `<span class="badge b-ok">${disp}/${b.exemplares}</span>` : `<span class="badge b-late">0/${b.exemplares}</span>`}</td>
+        <td>${media ? starsHTML(media) + ' <small>' + media.toFixed(1) + '</small>' : '<span class="t-sub">—</span>'}</td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap">${session.role === 'student' ? acaoAluno : acoesAdmin}</div></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+VIEWS.pedidos = function(){
+  const pendentes = DB.loans.filter(isPending).sort((a,b) => a.retirada.localeCompare(b.retirada));
+  const aprovados = DB.loans.filter(l => l.status === 'aprovado' && !l.devolvida);
+
+  return `
+    <div class="panel">
+      <h2>📥 Pedidos aguardando aprovação <span class="tag">${pendentes.length}</span></h2>
+      ${pendentes.length ? `<div class="table-wrap"><table>
+        <thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Data do pedido</th><th>Prazo</th><th>Ações</th></tr></thead>
+        <tbody>${pendentes.map(l => {
+          const b = bookById(l.bookId);
+          return `<tr>
+            <td><div class="t-title">${esc(l.nome)}</div></td>
+            <td>${esc(l.turma)}</td>
+            <td>${esc(b ? b.titulo : '—')}</td>
+            <td>${fmtDate(l.retirada)}</td>
+            <td><span class="badge b-info">${LOAN_DAYS} dias</span></td>
+            <td>
+              <button class="btn sm" data-action="aprovar" data-id="${l.id}">✅ Aprovar</button>
+              <button class="btn sm danger" data-action="rejeitar" data-id="${l.id}">✖ Rejeitar</button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody></table></div>` : `<div class="empty">Nenhum pedido pendente.</div>`}
+    </div>
+
+    <div class="panel">
+      <h2>📚 Empréstimos ativos <span class="tag">${aprovados.length}</span></h2>
+      ${aprovados.length ? `<div class="table-wrap"><table>
+        <thead><tr><th>Aluno</th><th>Turma</th><th>Livro</th><th>Retirada</th><th>Devolver até</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>${aprovados.map(l => {
+          const b = bookById(l.bookId);
+          const atrasado = isLate(l);
+          return `<tr class="${atrasado?'late-row':''}">
+            <td>${esc(l.nome)}</td><td>${esc(l.turma)}</td>
+            <td>${esc(b ? b.titulo : '—')}</td>
+            <td>${fmtDate(l.retirada)}</td><td>${fmtDate(l.prevista)}</td>
+            <td>${atrasado ? `<span class="badge b-late">Atrasado ${lateDays(l)}d</span>` : `<span class="badge b-info">Em dia</span>`}</td>
+            <td><button class="btn sm" data-action="devolver" data-id="${l.id}">Devolver</button></td>
+          </tr>`;
+        }).join('')}</tbody></table></div>` : `<div class="empty">Nenhum empréstimo ativo.</div>`}
+    </div>`;
+};
+
+VIEWS.meus = function(){
+  const meus = DB.loans.filter(l => studentKey(l.nome, l.turma) === session.key)
+                       .sort((a,b) => b.retirada.localeCompare(a.retirada));
+  const pendentes = meus.filter(isPending);
+  const ativos = meus.filter(l => l.status === 'aprovado' && !l.devolvida);
+  const atrasados = ativos.filter(isLate);
+  const devolvidos = meus.filter(l => l.devolvida);
+
+  const listaHTML = meus.length ? `<div class="table-wrap"><table>
+    <thead><tr><th>Livro</th><th>Pedido em</th><th>Devolver até</th><th>Devolvido em</th><th>Status</th></tr></thead>
+    <tbody>${meus.map(l => {
+      const b = bookById(l.bookId);
+      const st = l.devolvida ? `<span class="badge b-ok">Devolvido</span>`
+                : isPending(l) ? `<span class="badge b-late">Aguardando aprovação</span>`
+                : isLate(l) ? `<span class="badge b-late">Atrasado ${lateDays(l)}d</span>`
+                : `<span class="badge b-info">Em dia</span>`;
+      return `<tr class="${isLate(l)?'late-row':''}">
+        <td><div class="t-title">${esc(b ? b.titulo : '—')}</div><div class="t-sub">${esc(b ? b.autor : '')}</div></td>
+        <td>${fmtDate(l.retirada)}</td>
+        <td>${l.status === 'pendente' ? '—' : fmtDate(l.prevista)}</td>
+        <td>${l.devolvida ? fmtDate(l.devolvida) : '—'}</td>
+        <td>${st}</td>
+      </tr>`;
+    }).join('')}</tbody></table></div>` : `<div class="empty">Você ainda não fez nenhum pedido. Vá até o catálogo e escolha um livro! 📚</div>`;
+
+  return `
+    <div class="cards">
+      <div class="stat"><div class="lbl">Pedidos pendentes</div><div class="val">${pendentes.length}</div></div>
+      <div class="stat ok"><div class="lbl">Livros com você</div><div class="val">${ativos.length}</div></div>
+      <div class="stat late"><div class="lbl">Atrasados</div><div class="val">${atrasados.length}</div></div>
+      <div class="stat"><div class="lbl">Já devolvidos</div><div class="val">${devolvidos.length}</div></div>
+    </div>
+
+    ${atrasados.length ? `<div class="panel" style="border-left:5px solid var(--vermelho)">
+      <h2>⚠️ Atenção!</h2>
+      <p style="margin:0;font-size:14px;color:var(--vermelho);font-weight:600">
+        Você tem ${atrasados.length} livro(s) em atraso. Procure a biblioteca para devolver o quanto antes.
+      </p>
+    </div>` : ''}
+
+    <div class="panel">
+      <h2>📖 Meus pedidos e empréstimos</h2>
+      ${listaHTML}
+    </div>`;
+};
+
+VIEWS.avaliacoes = function(){
+  const list = [...DB.reviews].sort((a,b) => b.data.localeCompare(a.data));
+  const livros = [...DB.books].sort((a,b) => a.titulo.localeCompare(b.titulo));
+  const turmas = [...new Set(DB.loans.map(l => l.turma))].sort((a,b) => a.localeCompare(b));
+
+  return `
+    <div class="panel">
+      <h2>✍️ Registrar avaliação</h2>
+      ${livros.length ? `
+      <form class="form-grid" id="adminReviewForm">
+        <div class="full"><label>Nome do aluno</label><input name="nome" required maxlength="80" placeholder="Ex.: Pedro Henrique Rocha" autocomplete="off"></div>
+        <div><label>Turma</label>
+          <input name="turma" required maxlength="20" list="turmaList2" placeholder="Ex.: 7º C" autocomplete="off">
+          <datalist id="turmaList2">${turmas.map(t => `<option value="${esc(t)}">`).join('')}</datalist>
+        </div>
+        <div><label>Livro</label>
+          <select name="bookId" required>${livros.map(b => `<option value="${b.id}">${esc(b.titulo)}</option>`).join('')}</select>
+        </div>
+        <div><label>Nota (1-5)</label>
+          <select name="nota">${[5,4,3,2,1].map(n => `<option value="${n}">${n} ★</option>`).join('')}</select>
+        </div>
+        <div class="full"><label>Comentário</label><input name="comentario" maxlength="200" placeholder="O que o aluno achou do livro?"></div>
+        <div class="modal-actions" style="margin-top:0"><button class="btn" type="submit">Salvar avaliação</button></div>
+      </form>` : `<div class="empty">Cadastre livros primeiro.</div>`}
+    </div>
+
+    <div class="panel">
+      <h2>Avaliações registradas <span class="tag">${list.length}</span></h2>
+      ${list.length ? `<div class="table-wrap"><table>
+        <thead><tr><th>Data</th><th>Aluno</th><th>Turma</th><th>Livro</th><th>Nota</th><th>Comentário</th><th>Ação</th></tr></thead>
+        <tbody>${list.map(r => {
+          const b = bookById(r.bookId);
+          return `<tr>
+            <td>${fmtDate(r.data)}</td><td>${esc(r.nome)}</td><td>${esc(r.turma)}</td>
+            <td>${esc(b ? b.titulo : '—')}</td><td>${starsHTML(r.nota)}</td>
+            <td style="max-width:320px">${esc(r.comentario || '—')}</td>
+            <td><button class="btn sm danger" data-action="delReview" data-id="${r.id}">Excluir</button></td>
+          </tr>`;
+        }).join('')}</tbody></table></div>` : `<div class="empty">Nenhuma avaliação ainda.</div>`}
+    </div>`;
+};
+
+VIEWS.recomendacoes = function(){
+  const isStudent = session.role === 'student';
+  const cats = [...new Set(DB.books.map(b => b.categoria))].sort((a,b) => a.localeCompare(b));
+  let list = DB.books.map(b => ({ b, s: scoreOf(b) }));
+  if(ui.recCat) list = list.filter(x => x.b.categoria === ui.recCat);
+  list.sort((a,b) => b.s - a.s);
+
+  const naoLidos = isStudent
+    ? list.filter(x => !DB.loans.some(l => l.bookId === x.b.id && studentKey(l.nome, l.turma) === session.key))
+    : [];
+
+  return `
+    <div class="panel">
+      <h2>🏆 Ranking dos melhores livros para ler</h2>
+      <p class="muted" style="margin:-6px 0 16px">A pontuação combina média das avaliações, procura (empréstimos) e quantidade de avaliações.</p>
+      <div class="chips" style="margin-bottom:8px">
+        <button class="chip ${!ui.recCat?'active':''}" data-action="recFilter" data-cat="">Todas</button>
+        ${cats.map(c => `<button class="chip ${ui.recCat===c?'active':''}" data-action="recFilter" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}
+      </div>
+      ${rankHTML(list, isStudent)}
+    </div>
+
+    ${isStudent && naoLidos.length ? `
+    <div class="panel">
+      <h2>💡 Sugestões para você</h2>
+      <p class="muted" style="margin:-6px 0 14px">Livros bem avaliados que você ainda não leu.</p>
+      ${rankHTML(naoLidos.slice(0,5), true)}
+    </div>` : ''}`;
+};
+
+VIEWS.config = function(){
+  return `
+    <div class="panel">
+      <h2>🔐 Credenciais do bibliotecário</h2>
+      <form id="credForm" class="form-grid">
+        <div><label>Usuário</label><input name="user" value="${esc(DB.meta.user)}" required></div>
+        <div><label>Senha</label><input name="pass" value="${esc(DB.meta.pass)}" required></div>
+        <div class="modal-actions"><button class="btn" type="submit">Salvar credenciais</button></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>📚 Catálogo</h2>
+      <p class="muted" style="margin:-6px 0 14px">
+        O catálogo atual tem <b>${DB.books.length}</b> livros. Importe um CSV para expandir para mais de 1000 títulos.
+      </p>
+      <div class="row">
+        <button class="btn ghost" data-action="export">⬇ Exportar backup (JSON)</button>
+        <label class="btn ghost" style="cursor:pointer">⬆ Importar catálogo (CSV)
+          <input type="file" id="importFile" accept=".csv,text/csv" hidden>
+        </label>
+        <button class="btn danger" data-action="reset">♻ Restaurar catálogo inicial</button>
+      </div>
+      <p class="muted" style="margin:10px 0 0;font-size:12px">
+        Formato do CSV: <code>Título;Autor;Categoria</code> (uma linha por livro).
+      </p>
+    </div>
+
+    <div class="panel">
+      <h2>ℹ️ Sobre</h2>
+      <p class="muted" style="margin:0">
+        <b>Unidade Polo</b> — Biblioteca Escolar.<br>
+        Prazo fixo de <b>${LOAN_DAYS} dias</b> para todos os livros. O aluno faz o pedido e o bibliotecário aprova.
+      </p>
+    </div>`;
+};
+
+VIEWS.avaliar = function(){
+  const meus = DB.loans.filter(l => studentKey(l.nome, l.turma) === session.key);
+  const lidos = [...new Set(meus.filter(l => l.devolvida).map(l => l.bookId))];
+  const livros = lidos.map(bookById).filter(Boolean).sort((a,b) => a.titulo.localeCompare(b.titulo));
+
+  if(!livros.length){
+    return `<div class="panel"><div class="empty">
+      Você poderá avaliar um livro depois de devolvê-lo. 📚<br><br>
+      <span style="font-size:13px">Pegue um livro na biblioteca e, ao terminar a leitura, volte aqui para dar sua nota!</span>
+    </div></div>`;
+  }
+
+  return livros.map(b => {
+    const rev = DB.reviews.find(r => r.bookId === b.id && studentKey(r.nome, r.turma) === session.key);
+    const nota = rev ? rev.nota : 5;
+    return `<div class="panel">
+      <div class="head" style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <div>
+          <div class="t-title" style="font-size:15.5px">${esc(b.titulo)}</div>
+          <div class="t-sub">${esc(b.autor)} · ${esc(b.categoria)}</div>
+        </div>
+        ${rev ? `<span class="badge b-ok">Avaliado ${fmtDate(rev.data)}</span>` : `<span class="badge b-neutral">Aguardando sua avaliação</span>`}
+      </div>
+      <form class="review-form" data-book="${b.id}">
+        <div class="stars-input">
+          ${[1,2,3,4,5].map(n => `<button type="button" class="star ${n <= nota ? 'on' : ''}" data-action="star" data-value="${n}">★</button>`).join('')}
+          <input type="hidden" name="nota" value="${nota}">
+        </div>
+        <textarea name="comentario" maxlength="300" placeholder="Escreva o que você achou do livro...">${esc(rev ? rev.comentario : '')}</textarea>
+        <div class="foot" style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="btn" type="submit">${rev ? 'Atualizar avaliação' : 'Enviar avaliação'}</button>
+        </div>
+      </form>
+    </div>`;
+  }).join('');
+};
+
+function openRequestModal(bookId){
+  const b = bookById(bookId);
+  if(!b){ toast('Livro não encontrado.', 'err'); return; }
+  if(availableCopies(b) <= 0){ toast('Não há exemplares disponíveis deste livro.', 'err'); return; }
+
+  const prev = new Date(); prev.setDate(prev.getDate() + LOAN_DAYS);
+
+  openModal(`
+    <h2>📥 Fazer pedido de empréstimo</h2>
+    <div style="background:var(--cinza-1);border-radius:12px;padding:14px 16px;margin-bottom:18px;border-left:4px solid var(--azul-claro)">
+      <div class="t-title" style="font-size:15px">${esc(b.titulo)}</div>
+      <div class="t-sub">${esc(b.autor)} · ${esc(b.categoria)}</div>
+      <div class="t-sub" style="margin-top:6px">Prazo: <b>${LOAN_DAYS} dias</b> · Devolver até: <b>${fmtDate(isoLocal(prev))}</b></div>
+    </div>
+    <p class="muted" style="margin-bottom:16px">Confirme seus dados para enviar o pedido ao bibliotecário:</p>
+    <div class="form-grid">
+      <div class="full"><label>Nome</label><input value="${esc(session.nome)}" disabled style="opacity:.7"></div>
+      <div><label>Turma</label><input value="${esc(session.turma)}" disabled style="opacity:.7"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" data-action="closeModal">Cancelar</button>
+      <button type="button" class="btn" data-action="confirmRequest" data-book="${b.id}">Confirmar pedido</button>
+    </div>
+  `);
+
+  $$('#modalBox [data-action="confirmRequest"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prev2 = new Date(); prev2.setDate(prev2.getDate() + LOAN_DAYS);
+      DB.loans.push({
+        id: DB.meta.nextLoan++,
+        nome: session.nome,
+        turma: session.turma,
+        periodo: '—',
+        bookId: b.id,
+        retirada: todayISO(),
+        prevista: isoLocal(prev2),
+        devolvida: null,
+        status: 'pendente'
+      });
+      saveDB(); closeModal();
+      toast('Pedido enviado! Aguarde a aprovação do bibliotecário.', 'ok');
+      render();
+    });
+  });
+}
+
+function approveLoan(id){
+  const l = DB.loans.find(x => x.id === id);
+  if(!l || !isPending(l)) return;
+  const prev = new Date(); prev.setDate(prev.getDate() + LOAN_DAYS);
+  l.status = 'aprovado';
+  l.retirada = todayISO();
+  l.prevista = isoLocal(prev);
+  saveDB();
+  toast('Empréstimo aprovado! Prazo de 10 dias.', 'ok');
+  render();
+}
+
+function rejectLoan(id){
+  if(!confirm('Rejeitar este pedido?')) return;
+  DB.loans = DB.loans.filter(l => l.id !== id);
+  saveDB();
+  toast('Pedido rejeitado.', 'ok');
+  render();
+}
+
+function returnLoan(id){
+  const l = DB.loans.find(x => x.id === id);
+  if(!l || l.devolvida) return;
+  l.devolvida = todayISO();
+  saveDB();
+  toast('Devolução registrada!', 'ok');
+  render();
+}
+
+function saveReview(nome, turma, periodo, bookId, nota, comentario){
+  const k = studentKey(nome, turma);
+  let r = DB.reviews.find(x => x.bookId === bookId && studentKey(x.nome, x.turma) === k);
+  if(r){
+    r.nome = nome; r.turma = turma; r.periodo = periodo || r.periodo;
+    r.nota = nota; r.comentario = comentario; r.data = todayISO();
+  } else {
+    DB.reviews.push({ id: DB.meta.nextReview++, nome, turma, periodo, bookId, nota, comentario, data: todayISO() });
+  }
+  saveDB();
+}
+
+function openBookForm(id){
+  const b = id ? bookById(id) : { titulo:'', autor:'', categoria:'Romance', ano:'', exemplares:1 };
+  const cats = [...new Set([...CATEGORIAS, ...DB.books.map(x => x.categoria)])].sort((a,b) => a.localeCompare(b));
+
+  openModal(`
+    <h2>${id ? 'Editar livro' : 'Novo livro'}</h2>
+    <form id="bookForm" class="form-grid">
+      <div class="full"><label>Título</label><input name="titulo" required maxlength="120" value="${esc(b.titulo)}"></div>
+      <div class="full"><label>Autor</label><input name="autor" required maxlength="80" value="${esc(b.autor)}"></div>
+      <div><label>Categoria</label>
+        <select name="categoria">${cats.map(c => `<option value="${esc(c)}" ${b.categoria === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
+      </div>
+      <div><label>Ano</label><input name="ano" type="number" min="0" max="2100" value="${esc(b.ano)}"></div>
+      <div><label>Exemplares</label><input name="exemplares" type="number" min="1" max="999" value="${esc(b.exemplares)}" required></div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" data-action="closeModal">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  `);
+
+  $('#bookForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const dados = {
+      titulo: f.titulo.value.trim(),
+      autor: f.autor.value.trim(),
+      categoria: f.categoria.value,
+      ano: Number(f.ano.value) || '—',
+      exemplares: Math.max(1, Number(f.exemplares.value) || 1)
+    };
+    if(!dados.titulo || !dados.autor){ toast('Preencha título e autor.', 'err'); return; }
+
+    if(id){
+      const emprestados = activeLoansOfBook(id).length;
+      if(dados.exemplares < emprestados){
+        toast(`Há ${emprestados} exemplar(es) emprestado(s).`, 'err');
+        return;
+      }
+      Object.assign(bookById(id), dados);
+      toast('Livro atualizado!', 'ok');
+    } else {
+      DB.books.push({ id: DB.meta.nextBook++, ...dados });
+      toast('Livro cadastrado!', 'ok');
+    }
+    saveDB(); closeModal(); render();
+  });
+}
+
+function deleteBook(id){
+  const b = bookById(id);
+  if(!b) return;
+  if(activeLoansOfBook(id).length){ toast('Não é possível excluir: há exemplares emprestados.', 'err'); return; }
+  if(!confirm(`Excluir o livro "${b.titulo}"?`)) return;
+  DB.books = DB.books.filter(x => x.id !== id);
+  DB.loans = DB.loans.filter(l => l.bookId !== id);
+  DB.reviews = DB.reviews.filter(r => r.bookId !== id);
+  saveDB(); toast('Livro excluído.', 'ok'); render();
+}
+
+function showBookDetails(id){
+  const b = bookById(id);
+  if(!b) return;
+  const activeLoans = activeLoansOfBook(id);
+  const allLoans = DB.loans.filter(l => l.bookId === id).sort((a,b) => b.retirada.localeCompare(a.retirada));
+  const revs = reviewsOfBook(id).sort((a,b) => b.data.localeCompare(a.data));
+  const media = avgRating(id);
+  const disp = availableCopies(b);
+
+  openModal(`
+    <h2>📖 ${esc(b.titulo)}</h2>
+    <p class="muted" style="margin:-10px 0 16px">${esc(b.autor)} · ${esc(b.categoria)}</p>
+
+    <div class="cards" style="margin-bottom:20px">
+      <div class="stat"><div class="lbl">Exemplares</div><div class="val">${b.exemplares}</div></div>
+      <div class="stat ok"><div class="lbl">Disponíveis</div><div class="val">${disp}</div></div>
+      <div class="stat"><div class="lbl">Emprestados</div><div class="val">${activeLoans.length}</div></div>
+      <div class="stat"><div class="lbl">Nota média</div><div class="val">${media ? media.toFixed(1) : '—'}</div></div>
+    </div>
+
+    <h3 style="font-size:14px;color:var(--azul-escuro);margin:0 0 8px">Empréstimos ativos (${activeLoans.length})</h3>
+    ${activeLoans.length ? `<div class="table-wrap"><table style="min-width:auto">
+      <thead><tr><th>Aluno</th><th>Turma</th><th>Retirada</th><th>Prevista</th><th>Status</th><th>Ação</th></tr></thead>
+      <tbody>${activeLoans.map(l => {
+        const atrasado = isLate(l);
+        return `<tr class="${atrasado?'late-row':''}">
+          <td>${esc(l.nome)}</td><td>${esc(l.turma)}</td>
+          <td>${fmtDate(l.retirada)}</td><td>${fmtDate(l.prevista)}</td>
+          <td>${atrasado ? `<span class="badge b-late">Atrasado ${lateDays(l)}d</span>` : `<span class="badge b-info">Em dia</span>`}</td>
+          <td><button class="btn sm" data-action="devolver" data-id="${l.id}">Devolver</button></td>
+        </tr>`;
+      }).join('')}</tbody></table></div>` : `<div class="empty">Nenhum empréstimo ativo.</div>`}
+
+    <h3 style="font-size:14px;color:var(--azul-escuro);margin:20px 0 8px">Histórico completo (${allLoans.length})</h3>
+    ${allLoans.length ? `<div class="table-wrap"><table style="min-width:auto">
+      <thead><tr><th>Aluno</th><th>Turma</th><th>Pedido</th><th>Prevista</th><th>Devolvido</th><th>Status</th></tr></thead>
+      <tbody>${allLoans.map(l => `<tr>
+        <td>${esc(l.nome)}</td><td>${esc(l.turma)}</td>
+        <td>${fmtDate(l.retirada)}</td><td>${fmtDate(l.prevista)}</td>
+        <td>${l.devolvida ? fmtDate(l.devolvida) : '—'}</td>
+        <td>${l.devolvida ? `<span class="badge b-ok">OK</span>` : isPending(l) ? `<span class="badge b-late">Pendente</span>` : `<span class="badge b-info">Em aberto</span>`}</td>
+      </tr>`).join('')}</tbody></table></div>` : `<div class="empty">Nenhum empréstimo.</div>`}
+
+    <h3 style="font-size:14px;color:var(--azul-escuro);margin:20px 0 8px">Avaliações (${revs.length})</h3>
+    ${revs.length ? revs.map(r => `
+      <div class="review-card" style="padding:12px 14px">
+        <div class="head" style="margin-bottom:4px">
+          <span class="n" style="font-size:13.5px">${esc(r.nome)} · ${esc(r.turma)}</span>
+          <span class="m">${starsHTML(r.nota)} · ${fmtDate(r.data)}</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted)">${esc(r.comentario || 'Sem comentário.')}</div>
+      </div>`).join('') : `<div class="empty">Nenhuma avaliação ainda.</div>`}
+
+    <div class="modal-actions"><button class="btn" data-action="closeModal">Fechar</button></div>
+  `);
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(DB, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `unidade-polo-backup-${todayISO()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Backup exportado!', 'ok');
+}
+
+function handleImportCSV(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text = String(ev.target.result || '').replace(/\r/g, '');
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    let added = 0;
+    lines.forEach(line => {
+      const parts = line.split(';');
+      if(parts.length < 2) return;
+      const titulo = parts[0].trim();
+      const autor = parts[1].trim();
+      const categoria = (parts[2] || 'Romance').trim();
+      if(!titulo || !autor) return;
+      DB.books.push({ id: DB.meta.nextBook++, titulo, autor, categoria, ano:'—', exemplares:3 });
+      added++;
+    });
+    if(added){
+      saveDB();
+      toast(`${added} livros importados! Total: ${DB.books.length}.`, 'ok');
+      render();
+    } else {
+      toast('Nenhum livro válido encontrado no CSV.', 'err');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function resetData(){
+  if(!confirm('Isso apagará todos os dados e restaurará o catálogo inicial. Continuar?')) return;
+  DB = { meta:{ nextBook:1, nextLoan:1, nextReview:1, user:'bibliotecario', pass:'polo123' }, books: seedBooks(), loans:[], reviews:[] };
+  DB.meta.nextBook = DB.books.length + 1;
+  saveDB();
+  toast('Dados restaurados.', 'ok');
+  render();
+}
+
+function bindView(){
+  const bs = $('#bookSearch');
+  if(bs) bs.addEventListener('input', e => {
+    ui.bookSearch = e.target.value;
+    const wrap = $('#bookTableWrap');
+    if(wrap) wrap.innerHTML = bookTableHTML();
+  });
+  const imp = $('#importFile');
+  if(imp) imp.addEventListener('change', handleImportCSV);
+}
+
+$('#view').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const action = btn.dataset.action;
+  const id = Number(btn.dataset.id);
+
+  switch(action){
+    case 'star': {
+      const wrap = btn.closest('.stars-input');
+      const val = Number(btn.dataset.value);
+      wrap.querySelector('input').value = val;
+      $$('.star', wrap).forEach((s, i) => s.classList.toggle('on', i < val));
+      return;
+    }
+    case 'pedir':          return openRequestModal(id);
+    case 'aprovar':        return approveLoan(id);
+    case 'rejeitar':       return rejectLoan(id);
+    case 'devolver':       return returnLoan(id);
+    case 'bookDetails':    return showBookDetails(id);
+    case 'newBook':        return openBookForm(null);
+    case 'editBook':       return openBookForm(id);
+    case 'delBook':        return deleteBook(id);
+    case 'delReview':      return deleteReview(id);
+    case 'catFilter':      ui.bookCat = btn.dataset.cat; return render();
+    case 'recFilter':      ui.recCat = btn.dataset.cat; return render();
+    case 'export':         return exportData();
+    case 'reset':          return resetData();
+    case 'closeModal':     return closeModal();
+  }
+});
+
+$('#view').addEventListener('submit', e => {
+  const f = e.target;
+  e.preventDefault();
+
+  if(f.classList.contains('review-form')){
+    const bookId = Number(f.dataset.book);
+    const nota = Number(f.nota.value) || 5;
+    const comentario = f.comentario.value.trim();
+    saveReview(session.nome, session.turma, '—', bookId, nota, comentario);
+    toast('Avaliação salva! ⭐', 'ok');
+    render();
+    return;
+  }
+
+  if(f.id === 'adminReviewForm'){
+    const nome = f.nome.value.trim().replace(/\s+/g,' ');
+    const turma = f.turma.value.trim().replace(/\s+/g,' ');
+    const bookId = Number(f.bookId.value);
+    const nota = Number(f.nota.value) || 5;
+    const comentario = f.comentario.value.trim();
+    if(nome.length < 3 || turma.length < 1){ toast('Informe nome e turma.', 'err'); return; }
+    if(!bookById(bookId)){ toast('Livro inválido.', 'err'); return; }
+    saveReview(nome, turma, '—', bookId, nota, comentario);
+    toast('Avaliação registrada!', 'ok');
+    render();
+    return;
+  }
+
+  if(f.id === 'credForm'){
+    const u = f.user.value.trim();
+    const p = f.pass.value;
+    if(!u || !p){ toast('Preencha usuário e senha.', 'err'); return; }
+    DB.meta.user = u; DB.meta.pass = p;
+    saveDB(); toast('Credenciais atualizadas!', 'ok'); render();
+    return;
+  }
+});
+
+function deleteReview(id){
+  if(!confirm('Excluir esta avaliação?')) return;
+  DB.reviews = DB.reviews.filter(r => r.id !== id);
+  saveDB(); toast('Avaliação excluída.', 'ok'); render();
+}
+
+(async () => {
+  await loadDB();
+  fillLoginTurmas();
+})();
+</script>
+</body>
+</html>
